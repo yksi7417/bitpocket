@@ -30,3 +30,21 @@ form .error .help-inline {
 h1 {
     margin-bottom: 20px !important;
 }
+
+dt, dd {
+    font-family:sans-serif;
+}
+
+dt {
+   float:left;
+   clear:left;
+   text-align:right;
+   width:50%;
+   color:#bbb;
+}
+
+dd {
+   float:left;
+   margin-left:3em;
+   color:#999
+}
