@@ -4,9 +4,8 @@ from django.forms.models import model_to_dict
 import json
 import random
 
-from django.core import serializers
-
 class PlayView(View):
+    __num_of_layers = 7
 
     def __flip(self, guess):
         if guess == 0:
@@ -14,14 +13,14 @@ class PlayView(View):
         return 0
 
     def __resetGame(self, profile):
-        profile.reset_game_result()
+        profile.start_game()
         profile.save()
 
     def __handleWin(self, guess, profile):
-        profile.account_balance += 10
         line_result = self.__processLineResult(guess, 'W', 'L')
         profile.append_line_result(profile.current_level, line_result)
         profile.current_level += 1
+        profile.win_game()
         profile.save()
 
     def __processLineResult(self, guess, first, second):
@@ -31,10 +30,12 @@ class PlayView(View):
         return line_result
 
     def __handleLoss(self, guess, profile):
-        profile.account_balance -= 10
         line_result = self.__processLineResult(guess, 'L', 'W')
         profile.append_line_result(profile.current_level, line_result)
-        profile.current_level += 1
+        for i in range(profile.current_level + 1, self.__num_of_layers):
+            profile.append_line_result(i, ['x','x'])
+        profile.current_level = self.__num_of_layers
+        profile.loss_game()
         profile.save()
 
     def __getResultFromVerifiableSource(self):
@@ -56,7 +57,10 @@ class PlayView(View):
         json_data = json.loads(self.request.body.decode('utf-8'))
         profile = self.request.user.profile
 
-        if (json_data['guess'] == -1):
+        if (json_data['action'] == 'reset'):
+            self.__resetGame(profile)
+        elif (json_data['action'] == 'collect_wager'):
+            profile.collect_wager()
             self.__resetGame(profile)
         else:
             self.makeOneGuess(profile, json_data['guess'])

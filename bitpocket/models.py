@@ -10,11 +10,28 @@ class Profile(models.Model):
     current_level = models.IntegerField(default=0)
     num_of_games_played = models.IntegerField(default=0)
     game_result = models.TextField(blank=True)
+    bet_size = models.IntegerField(default=0)
+    pot = models.IntegerField(default=0)
+
+    def collect_wager(self):
+        self.account_balance += self.pot
+        self.reset_game_result()
+
+    def start_game(self):
+        self.reset_game_result()
+        self.bet_size = 10
+        self.account_balance -= self.bet_size
+        self.pot = self.bet_size
+
+    def win_game(self):
+        self.pot *= 2
+
+    def loss_game(self):
+        self.pot = 0
 
     def reset_game_result(self):
         self.game_result = ''
         self.current_level = 0
-
 
     def append_line_result(self, line_number, line_result):
         if (self.game_result != ''):
