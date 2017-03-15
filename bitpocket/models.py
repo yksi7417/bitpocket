@@ -12,19 +12,28 @@ class Profile(models.Model):
     game_result = models.TextField(blank=True)
     bet_size = models.IntegerField(default=0)
     pot = models.IntegerField(default=0)
+    cost = models.IntegerField(default=2)
+    message = models.TextField(blank=True)
 
     def collect_wager(self):
         self.account_balance += self.pot
         self.reset_game_result()
 
     def start_game(self):
-        self.reset_game_result()
-        self.bet_size = 10
-        self.account_balance -= self.bet_size
-        self.pot = self.bet_size
+        if (self.account_balance > self.bet_size):
+            self.bet_size = 100
+            self.reset_game_result()
+            self.account_balance -= self.bet_size
+            self.pot = self.bet_size
+            self.message = "play!"
+        else:
+            self.pot = 0
+            self.message = "insufficient account balance, please recharge"
+            self.current_level = -1
+
 
     def win_game(self):
-        self.pot *= 2
+        self.pot = self.pot * 2 - self.cost
 
     def loss_game(self):
         self.pot = 0
