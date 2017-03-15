@@ -26,6 +26,7 @@ class Profile(models.Model):
             self.account_balance -= self.bet_size
             self.pot = self.bet_size
             self.message = "play!"
+            self.current_level = 0
         else:
             self.pot = 0
             self.message = "insufficient account balance, please recharge"
